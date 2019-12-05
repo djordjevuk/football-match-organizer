@@ -1,0 +1,72 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+.column-team-details {
+    float: left;
+    width: 50%;
+}
+
+.row-team-details:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.row-create-match:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.column-create-match-left, .column-create-match-right {
+    float: left;
+    width: 30%;
+}
+
+.column-create-match-middle {
+    float: left;
+    margin-right: 1%;
+    margin-left: 1%;
+    width: 35%;
+}
+
+.column-match-list-left {
+    float: left;
+    text-align:left;
+    width: 35%;
+}
+
+.column-match-list-right {
+    float: right;
+    text-align:right;
+    width: 65%;
+}
+
+.row-match-list:after {
+    content: "";
+    display: table;
+    max-width: 100%;
+    clear: both;
+}

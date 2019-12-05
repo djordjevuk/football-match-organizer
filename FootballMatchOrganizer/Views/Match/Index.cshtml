@@ -1,0 +1,116 @@
+﻿@model PagedList.IPagedList<FootballMatchOrganizer.Models.MatchModels.ListMatchViewModel>
+@using PagedList.Mvc;
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+@{
+    ViewBag.Title = "Matches";
+}
+
+<h2>Matches</h2>
+<br />
+<p>
+    @Html.ActionLink("Create new match", "Create", null, new { @class = "btn btn-primary" })
+</p>
+
+<table class="table">
+    <tr>
+        <th>
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().HostTeamId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().GuestTeamId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().MatchTime)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().MatchPlace)
+        </th>
+        <th>
+            @Html.DisplayName("Result")
+        </th>
+        <th>Action</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                <span title='@item.Status' class="fa fa-circle"></span>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Host.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Guest.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MatchTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MatchPlace)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Result)
+            </td>
+            <td>
+                @Html.ActionLink("Details", "Details", new { id = item.Id }, new { @class = "btn btn-primary" })
+            </td>
+        </tr>
+    }
+</table>
+<div class="row-match-list">
+    <div class="column-match-list-left">
+        <table>
+            <tr>
+                <td><span title="Not_started" class="fa fa-circle">&nbsp;</span></td>
+                <td>
+                    <span>Not started</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span title="Finished" class="fa fa-circle">&nbsp;</span>
+                </td>
+                <td>
+                    Finished
+                </td>
+            </tr>
+            <tr>
+            <tr>
+                <td>
+                    <span title="Canceled" class="fa fa-circle">&nbsp;</span>
+                </td>
+                <td>
+                    Canceled
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span title="In_progress" class="fa fa-circle">&nbsp;</span>
+                </td>
+                <td>
+                    In progress
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="column-match-list-right">
+        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+        @Html.PagedListPager(Model, page => Url.Action("Index",
+            new { page }))
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $('span[title=Not_started]').css({ 'color': 'gray' });
+            $('span[title=Finished]').css({ 'color': 'green' });
+            $('span[title=Canceled]').css({ 'color': 'red' });
+            $('span[title=In_progress]').css({ 'color': 'dodgerblue' });
+        });
+    </script>
+}

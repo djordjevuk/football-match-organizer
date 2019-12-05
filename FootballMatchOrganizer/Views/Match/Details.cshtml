@@ -1,0 +1,186 @@
+﻿@model FootballMatchOrganizer.Models.MatchModels.DetailsMatchViewModel
+
+@{
+    ViewBag.Title = "Match details";
+}
+
+<div>
+    <hr />
+    <div class="row-create-match">
+        <div class="column-create-match-left">
+            <dl class="dl-horizontal">
+                <dt>
+                    @Html.LabelFor(model => model.HostTeam, Model.HostTeam.Name, htmlAttributes: new { @class = "control-label" })
+                </dt>
+                <dd>
+                    @if (@Model.Status == "In_progress")
+                    {
+                        <button type="button" class="btn btn-primary" id="addHostTeamGoalButton" data-toggle="modal" data-target="#addHostTeamGoalModal">Add goal</button>
+                    }
+                </dd>
+            </dl>
+            <div>
+                <table>
+                    @{ int rowHostNo = 0; }
+                    @foreach (var item in Model.HostPlayerOnMatch)
+                    {
+                        <tr>
+                            <td>
+                                <p> @(rowHostNo += 1).</p>
+                            </td>
+                            <td>
+                                <p>@item.Player.Name (@item.Score)</p>
+                            </td>
+                        </tr>
+
+                    }
+                </table>
+            </div>
+        </div>
+        <div class="column-create-match-middle" style="text-align: center">
+            <h1>@Model.HostTeamResult:@Model.GuestTeamResult</h1>
+        </div>
+        <div class="column-create-match-right">
+            <dl class="dl-horizontal">
+                <dt>
+                    @Html.LabelFor(model => model.GuestTeam, Model.GuestTeam.Name, htmlAttributes: new { @class = "control-label" })
+                </dt>
+                <dd>
+                    @if (@Model.Status == "In_progress")
+                    {
+                        <button type="button" class="btn btn-primary" id="addGuestTeamGoalButton" data-toggle="modal" data-target="#addGuestTeamGoalModal">Add goal</button>
+                    }
+                </dd>
+            </dl>
+            <div>
+                <table>
+                    @{ int rowGuestNo = 0; }
+                    @foreach (var item in Model.GuestPlayerOnMatch)
+                    {
+                        <tr>
+                            <td>
+                                <p> @(rowGuestNo += 1).</p>
+                            </td>
+                            <td>
+                                <p>@item.Player.Name (@item.Score)</p>
+                            </td>
+                        </tr>
+
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+    @Html.ActionLink("Back", "Index", "Match", null, new { @class = "btn btn-default" })
+    @if (@Model.Status == "Not_started")
+    {
+        @Html.ActionLink("Start", "StartMatch", "Match", new { matchId = Model.Id }, new { @class = "btn btn-success", @id = "startMatchButton" })
+        <span> </span>
+        @Html.ActionLink("Cancel", "CancelMatch", "Match", new { matchId = Model.Id }, new { @class = "btn btn-danger", @id = "cancelMatchButton" })
+    }
+    @if (@Model.Status == "In_progress")
+    {
+        @Html.ActionLink("Finish", "FinishMatch", "Match", new { matchId = Model.Id }, new { @class = "btn btn-primary", @id = "finishMatchButton" })
+        <span> </span>
+        @Html.ActionLink("Cancel", "CancelMatch", "Match", new { matchId = Model.Id }, new { @class = "btn btn-danger", @id = "cancelMatchButton" })
+    }
+</div>
+
+<div class="modal" id="addHostTeamGoalModal" tabindex="-1" role="dialog" aria-labelledby="addHostTeamGoalModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addHostTeamGoalModalLabel" style="height: 0px;">Remove player</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <h3>@Model.HostTeam.Name</h3>
+                @Html.DropDownList("ddlAddGoalHost", new SelectList(Model.HostPlayerOnMatch, "PlayerId", "Player.Name", Model.SelectedPlayer), htmlAttributes: new { @id = "ddlHostTeamPlayerId", @class = "form-control" })
+                <input name="playerId" type="hidden" />
+            </div>
+            <div class="modal-footer">
+                @Html.AntiForgeryToken()
+                <div class="form-actions no-color">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="saveAddedGoalHost">Save</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="addGuestTeamGoalModal" tabindex="-1" role="dialog" aria-labelledby="addGuestTeamGoalModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addGuestTeamGoalModalLabel" style="height: 0px;">Remove player</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <h3>@Model.GuestTeam.Name</h3>
+                @Html.DropDownList("ddlAddGoalGuest", new SelectList(Model.GuestPlayerOnMatch, "PlayerId", "Player.Name", Model.SelectedPlayer), htmlAttributes: new { @id = "ddlGuestTeamPlayerId", @class = "form-control" })
+                <input name="playerId" type="hidden" />
+            </div>
+            <div class="modal-footer">
+                @Html.AntiForgeryToken()
+                <div class="form-actions no-color">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="saveAddedGoalGuest">Save</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+@section Scripts{
+    <script>
+        $('#addHostTeamGoalButton').on('click', function () {
+            $("#addHostTeamGoalModal").modal("show");
+        });
+        $('#addGuestTeamGoalButton').on('click', function () {
+            $("#addGuestTeamGoalModal").modal("show");
+        });
+        $('#saveAddedGoalHost').on('click', function () {
+            $.ajax({
+                url: '@Url.Action("AddGoalHostTeam")',
+                type: 'POST',
+                data: { matchId: '@Model.Id', teamId: '@Model.HostTeamId', playerId: $("#ddlHostTeamPlayerId").val()},
+                success: function (data) {
+                    window.location.href = data.Url;
+                },
+                error: function (resp) {
+                    console.log("Error:" + resp.responseText);
+                }
+            });
+        });
+        $('#saveAddedGoalGuest').on('click', function () {
+            $.ajax({
+                url: '@Url.Action("AddGoalGuestTeam")',
+                type: 'POST',
+                data: { matchId: '@Model.Id', teamId: '@Model.GuestTeamId', playerId: $("#ddlGuestTeamPlayerId").val()},
+                success: function (data) {
+                    window.location.href = data.Url;
+                },
+                error: function (resp) {
+                    console.log("Error:" + resp.responseText);
+                }
+            });
+        });
+
+    </script>
+}
+

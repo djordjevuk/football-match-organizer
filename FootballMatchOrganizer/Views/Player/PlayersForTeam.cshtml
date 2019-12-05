@@ -1,0 +1,146 @@
+﻿@model FootballMatchOrganizer.Models.PlayerModels.PlayersForTeamViewModel
+
+@{
+    ViewBag.Title = "Team details";
+}
+
+<h2>Team details</h2>
+
+<div>
+    <hr />
+    <div class="row-team-details">
+        <div class="column-team-details">
+            <dl class="dl-horizontal">
+                <dt>
+                    <img src="~/images/@Model.Team.Logo" alt="Image not found" width="100" height="120" style="border:solid" onerror="this.onerror = null; this.src = '~/images/team-logo.png';" class="img-rounded" />
+                </dt>
+                <dd>
+                    <h3>@Html.DisplayFor(model => model.Team.Name)</h3>
+                </dd>
+            </dl>
+            <p>
+                @Html.ActionLink("Back", "Index", "Team", null, new { @class = "btn btn-default" })
+                <button type="button" class="btn btn-primary" id="addPlayerButton" data-toggle="modal" data-target="#addPlayerModal">Add player</button>
+            </p>
+        </div>
+        <div class="column-team-details">
+            @if (Model.Players.Count == 0)
+            {
+                <p>The team has no players</p>
+            }
+            else
+            {
+                <table class="table">
+                    <tr>
+                        <th>
+                            @Html.DisplayName("Player name")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Action")
+                        </th>
+                    </tr>
+
+                    @foreach (var item in Model.Players)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td>
+                                <button class="removePlayerButton btn btn-primary" data-toggle="modal" data-target="#removePlayerModal"
+                                        data-id=@item.Id>
+                                    Remove
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="removePlayerModal" tabindex="-1" role="dialog" aria-labelledby="removePlayerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="removePlayerModalLabel" style="height: 0px;">Remove player</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h3>Are you sure you want to remove player?</h3>
+                <br />
+            </div>
+            <div class="modal-footer">
+                @using (Html.BeginForm("Delete", "Player", FormMethod.Post, null))
+                {
+                    @Html.AntiForgeryToken()
+                    <input id="player-id" name="playerid" type="hidden" />
+                    <div class="form-actions no-color">
+                        <input type="submit" value="Yes" class="btn btn-danger" />
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addPlayerModal" tabindex="-1" role="dialog" aria-labelledby="addPlayerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addPlayerModalLabel" style="height: 0px;">Add player</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("Create", "Player", FormMethod.Post, null))
+            {
+                <div class="modal-body">
+                    @Html.Label("Name*", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        <input name="playerName" id="playerName" type="text" class="form-control" />
+                        <input name="teamId" type="hidden" value="@Model.Team.Id" />
+                    </div>
+                </div>
+                <br />
+                <br />
+                <div class="modal-footer">
+                    @Html.AntiForgeryToken()
+                    <div class="form-actions no-color">
+                        <input type="submit" id="addPlayerButtonSubmit" value="Save" class="btn btn-primary" />
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script>
+    $(function () {
+        $('#addPlayerButtonSubmit').attr('disabled', true);
+        $('#playerName').keyup(function () {
+            if ($("#playerName").val() != '') {
+                $('#addPlayerButtonSubmit').attr('disabled', false);
+            } else {
+                $('#addPlayerButtonSubmit').attr('disabled', true);
+            }
+        });
+    });
+    $('#addPlayerButton').on('click', function () {
+        $("#addPlayerModal").modal("show");
+    });
+
+    $('.removePlayerButton').on('click', function () {
+        $("#player-id").val($(this).data('id'));
+        $("#removePlayerModal").modal("show");
+    });
+</script>
+

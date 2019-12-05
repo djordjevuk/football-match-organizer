@@ -1,0 +1,185 @@
+﻿@model FootballMatchOrganizer.Models.MatchModels.CreateMatchViewModel
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Create match</h2>
+
+@using (Html.BeginForm("Create", "Match", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="row-create-match">
+            <div class="column-create-match-left">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.HostTeamId, "Host", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.DropDownListFor(model => model.HostTeamId, new SelectList(Model.HostTeams, "Id", "Name", Model.HostTeamId), htmlAttributes: new { @id = "ddlHostTeamId", @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.HostTeamId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class=" col-md-12 col-md-offset-0">
+                        @Html.Label("Choose players(minimum 6)", htmlAttributes: new { @class = "control-label" })
+                        <br />
+                        @Html.ValidationMessageFor(model => model.PlayersHostTeam, "", new { @class = "text-danger" })
+                        @Html.HiddenFor(model => model.SelectedHostTeamPlayers)
+                    </div>
+                    <table class=" col-md-9 col-md-offset-3">
+                        @foreach (var item in Model.PlayersHostTeam)
+                        {
+                            <tr>
+                                <td>
+                                    <input type="checkbox" checked=@item.SelectedForMatch name="PlayerHostTeam" value=@item.Id class="form-control" />
+                                </td>
+                                <td>
+                                    @Html.Label("lblHostPlayerName", item.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+            <div class="column-create-match-middle">
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.MatchPlace, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.MatchPlace, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.MatchPlace, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.MatchTime, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-7">
+                        <div class="input-group date" id="datetimepicker">
+                            @Html.EditorFor(model => model.MatchTime, new { htmlAttributes = new { @class = "form-control" } })
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                        @Html.ValidationMessageFor(model => model.MatchTime, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="column-create-match-right">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.GuestTeamId, "Guest", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.DropDownListFor(model => model.GuestTeamId, new SelectList(Model.GuestTeams, "Id", "Name", Model.GuestTeamId), htmlAttributes: new { @id = "ddlGuestTeamId", @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.GuestTeamId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class=" col-md-12 col-md-offset-0">
+                        @Html.Label("Choose players(minimum 6)", htmlAttributes: new { @class = "control-label" })
+                        <br />
+                        @Html.ValidationMessageFor(model => model.PlayersGuestTeam, "", new { @class = "text-danger" })
+                        @Html.HiddenFor(model => model.SelectedGuestTeamPlayers)
+                    </div>
+                    <table class=" col-md-9 col-md-offset-3">
+                        @foreach (var item in Model.PlayersGuestTeam)
+                        {
+                            <tr>
+                                <td>
+                                    <input type="checkbox" checked=@item.SelectedForMatch name="PlayerGuestTeam" value=@item.Id class="form-control" />
+                                </td>
+                                <td>
+                                    @Html.Label("lblGuestPlayerName", item.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="form-group">
+            <div class="col-md-offset-0 col-md-10">
+                @Html.ActionLink("Cancel", "Index", null, new { @class = "btn btn-danger" }) <input type="submit" id="submitButton" value="Save" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            var disabledDatesAr = @Html.Raw(Json.Encode(Model.DisabledDates));
+            $('#datetimepicker').datetimepicker({
+                format: 'DD.MM.YYYY HH:mm',
+                locale: 'rs',
+                showClose: true,
+                showClear: true,
+                toolbarPlacement: 'top',
+                minDate: new Date(),
+                disabledDates: disabledDatesAr
+            });
+        });
+        $('#ddlHostTeamId').change(function () {
+            console.log("Home id: " + $("#ddlHostTeamId").val() + ", Home id: " + $("#ddlGuestTeamId").val());
+            var host = "";
+            var guest = "";
+            $('input[name=PlayerGuestTeam]').each(function () {
+                if (this.checked) {
+                    guest = guest + $(this).val() + " ";
+                }
+            });
+            $.ajax({
+                url: '@Url.Action("UpdateCheckboxList")',
+                type: 'POST',
+                data: { hostTeamId: $("#ddlHostTeamId").val(), guestTeamId: $("#ddlGuestTeamId").val(), hostTeamPlayers: host,guestTeamPlayers: guest},
+                success: function (data) {
+                    window.location.href = data.Url;
+                },
+                error: function (resp) {
+                    console.log("Error:" + resp.responseText);
+                }
+            });
+        });
+        $('#ddlGuestTeamId').change(function () {
+            console.log("Home id: " + $("#ddlHostTeamId").val() + ", Home id: " + $("#ddlGuestTeamId").val());
+            var host = "";
+            var guest = "";
+            $('input[name=PlayerHostTeam]').each(function () {
+                if (this.checked) {
+                    host = host + $(this).val() + " ";
+                }
+            });
+            $.ajax({
+                url: '@Url.Action("UpdateCheckboxList")',
+                type: 'POST',
+                data: { hostTeamId: $("#ddlHostTeamId").val(), guestTeamId: $("#ddlGuestTeamId").val(),hostTeamPlayers: host,guestTeamPlayers: guest },
+                success: function (data) {
+                    window.location.href = data.Url;
+                },
+                error: function (resp) {
+                    console.log("Error:" + resp.responseText);
+                }
+            });
+        });
+        $('#submitButton').on('click', function () {
+            var host = "";
+            var guest = "";
+            $('input[name=PlayerHostTeam]').each(function () {
+                if (this.checked) {
+                    host = host + $(this).val() + " ";
+                }
+            });
+
+            $('#SelectedHostTeamPlayers').val(host);
+            $('input[name=PlayerGuestTeam]').each(function () {
+                if (this.checked) {
+                    guest = guest + $(this).val() + " ";
+
+                }
+            });
+            $('#SelectedGuestTeamPlayers').val(guest);
+        });
+    </script>
+}

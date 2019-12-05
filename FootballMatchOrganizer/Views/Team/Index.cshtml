@@ -1,0 +1,124 @@
+﻿@model PagedList.IPagedList<FootballMatchOrganizer.DAL.Team>
+@using PagedList.Mvc;
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+@{
+    ViewBag.Title = "Teams";
+}
+
+<h2>Teams</h2>
+<br />
+<p>
+    <button type="button" class="btn btn-primary" id="createTeamButton" data-toggle="modal" data-target="#createTeamModal">Create new team</button>
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().Name)
+        </th>
+        <th>
+            @Html.DisplayName("Number of players")
+        </th>
+        <th>
+            @Html.DisplayName("Actions")
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Players.Count)
+            </td>
+            <td>
+                @Html.ActionLink("Details", "Details", new { id = item.Id }, new { @class = "btn btn-primary" })
+            </td>
+        </tr>
+    }
+</table>
+
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+@Html.PagedListPager(Model, page => Url.Action("Index",
+    new { page }))
+
+<div class="modal fade" id="createTeamModal" tabindex="-1" role="dialog" aria-labelledby="createTeamModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createTeamModalLabel" style="height: 0px;">Create team</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("Create", "Team", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                <div class="form-horizontal">
+                    <hr />
+                    <div class="form-group">
+                        @Html.Label("Name*", htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            <input name="teamName" id="teamName" type="text" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Logo", htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            <input type="file" title="logo image" id="image_file" style="display: none" name="image_file" onchange="showImage(this)" />
+                            <img id="logo_img" height="100" width="100" src="/images/team-logo.png" style="cursor:pointer; border:solid;" class="img-rounded" />
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <br />
+                <div class="modal-footer">
+                    @Html.AntiForgeryToken()
+                    <div class="form-actions no-color">
+                        <input type="submit" id="createTeamButtonSubmit" value="Save" class="btn btn-primary" />
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryval")
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script>
+    $('#createTeamButton').on('click', function () {
+        $("#createTeamModal").modal("show");
+    });
+    $(function () {
+        $('#createTeamButtonSubmit').attr('disabled', true);
+        $('#teamName').keyup(function () {
+            if ($("#teamName").val() != '') {
+                $('#createTeamButtonSubmit').attr('disabled', false);
+            } else {
+                $('#createTeamButtonSubmit').attr('disabled', true);
+            }
+        });
+    });
+    function showImage(input) {
+        if (input.files && input.files[0]) {
+            var filerdr = new FileReader();
+            filerdr.onload = function (e) {
+
+                console.log("Image: " + e.target.result);
+                $('#logo_img').attr('src', e.target.result);
+            }
+            filerdr.readAsDataURL(input.files[0]);
+        } else {
+            console.log("Not found");
+        }
+    }
+    $("#logo_img").click(function () {
+        $("#image_file").trigger('click');
+    });
+</script>
+
+
